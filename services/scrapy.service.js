@@ -13,7 +13,11 @@ const service = {
 
         console.log("buscando...", mas);
 
-        const brower = await puppeteer.launch();
+        const brower = await puppeteer.launch({
+            args: [
+                '--no-sandbox', '--disable-setuid-sandbox'
+            ]
+        });
         const page = await brower.newPage();
 
         let response1 = [];
