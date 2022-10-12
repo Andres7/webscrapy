@@ -42,8 +42,10 @@ const service = {
         let response2 = [];
         if (mas) {
             await page.goto(config.STOCK[1]);
-            await page.type('.search input', texto)
-            await page.click('.search button');
+            if (texto != '') {
+                await page.type('.search input', texto)
+                await page.click('.search button');
+            }
             await page.waitForSelector('.wookmark-initialised');
             await page.waitForTimeout(5000);
             response2 = await page.evaluate(() => {
@@ -51,7 +53,7 @@ const service = {
                 const links = [];
                 for (let element of elements) {
                     const img = element.querySelector('img');
-                    links.push(img.src);
+                    links.push({ link: element.href, img: img.src });
                 }
                 return links;
             });
