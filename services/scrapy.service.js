@@ -79,7 +79,7 @@ const service = {
         const page = await brower.newPage();
 
         let response = [];
-        await page.goto(`${config.STOCK[1]}${url}`);
+        await page.goto(url);
         await page.waitForSelector('.wookmark-initialised');
         await page.waitForTimeout(espera);
         response = await page.evaluate(() => {
