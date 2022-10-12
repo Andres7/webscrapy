@@ -8,7 +8,7 @@ const control = {
 
     async search(req, res) {
         try {
-            const response = await srv.search(req.body.texto, req.body.mas);
+            const response = await srv.search(req.body.texto, req.body.mas, req.body.espera);
             res.status(200).send({ status: true, data: response });
         } catch (error) {
             console.log(error);

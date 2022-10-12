@@ -8,7 +8,7 @@ const service = {
         return "Hola domun"
     },
 
-    async search(texto, mas) {
+    async search(texto, mas, espera) {
         const guid = uuidv4();
 
         console.log("buscando...", mas);
@@ -27,7 +27,7 @@ const service = {
             await page.type('.header__search-form__flex-wrap input', texto)
             await page.click('.header__search-form__flex-wrap button');
             await page.waitForSelector('.photo-grid')
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(espera);
             response1 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.photo-grid a');
                 const links = [];
@@ -47,7 +47,7 @@ const service = {
                 await page.click('.search button');
             }
             await page.waitForSelector('.wookmark-initialised');
-            await page.waitForTimeout(5000);
+            await page.waitForTimeout(espera);
             response2 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.wookmark-initialised a');
                 const links = [];
