@@ -78,11 +78,11 @@ const service = {
         });
         const page = await brower.newPage();
 
-        let response2 = [];
+        let response = [];
         await page.goto(`${config.STOCK[1]}${url}`);
         await page.waitForSelector('.wookmark-initialised');
         await page.waitForTimeout(espera);
-        response2 = await page.evaluate(() => {
+        response = await page.evaluate(() => {
             const elements = document.querySelectorAll('.wookmark-initialised a');
             const links = [];
             for (let element of elements) {
@@ -93,7 +93,7 @@ const service = {
         });
         await brower.close();
         console.log("Respondido");
-        return response2;
+        return response;
 
     }
 
