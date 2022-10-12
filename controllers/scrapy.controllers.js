@@ -14,6 +14,16 @@ const control = {
             console.log(error);
             res.status(500).send({ status: false, dara: error });
         }
+    },
+
+    async detail(req, res) {
+        try {
+            const response = await srv.detail(req.body.url, req.body.espera);
+            res.status(200).send({ status: true, data: response });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ status: false, dara: error });
+        }
     }
 }
 module.exports = control;

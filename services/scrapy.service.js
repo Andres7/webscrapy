@@ -64,6 +64,37 @@ const service = {
         console.log("Respondido");
         return [...response1, ...response2];
 
+    },
+
+
+    async detail(url, espera) {
+
+        console.log("buscando...");
+
+        const brower = await puppeteer.launch({
+            args: [
+                '--no-sandbox', '--disable-setuid-sandbox'
+            ]
+        });
+        const page = await brower.newPage();
+
+        let response2 = [];
+        await page.goto(`${config.STOCK[1]}${url}`);
+        await page.waitForSelector('.wookmark-initialised');
+        await page.waitForTimeout(espera);
+        response2 = await page.evaluate(() => {
+            const elements = document.querySelectorAll('.wookmark-initialised a');
+            const links = [];
+            for (let element of elements) {
+                const img = element.querySelector('img');
+                links.push({ link: element.href, img: img.src });
+            }
+            return links;
+        });
+        await brower.close();
+        console.log("Respondido");
+        return response2;
+
     }
 
 }
