@@ -30,7 +30,7 @@ const service = {
             await page.waitForSelector('.photo-grid');
             // await page.waitForTimeout(espera);
 
-            await autoScroll(page);
+            await autoScroll(page, espera);
             response1 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.photo-grid a');
                 const links = [];
@@ -89,7 +89,7 @@ const service = {
         await page.waitForSelector('.wookmark-initialised');
         // await page.waitForTimeout(espera);
 
-        await autoScroll(page);
+        await autoScroll(page, espera);
         response = await page.evaluate(() => {
             const elements = document.querySelectorAll('.wookmark-initialised a');
             const links = [];
