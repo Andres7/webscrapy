@@ -27,8 +27,10 @@ const service = {
 
             await page.type('.header__search-form__flex-wrap input', texto)
             await page.click('.header__search-form__flex-wrap button');
-            await page.waitForSelector('.photo-grid')
-            await page.waitForTimeout(espera);
+            await page.waitForSelector('.photo-grid');
+            // await page.waitForTimeout(espera);
+
+            await autoScroll(page);
             response1 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.photo-grid a');
                 const links = [];
@@ -42,7 +44,7 @@ const service = {
 
         let response2 = [];
         if (mas) {
-            await page.goto(config.STOCK[1]);
+            await page.goto(config.STOCK[1], [1000, { waitUntil: "domcontentloaded" }]);
             if (texto != '') {
                 await page.type('.search input', texto)
                 await page.click('.search button');
