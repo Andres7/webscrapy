@@ -52,7 +52,7 @@ const service = {
             await page.waitForSelector('.wookmark-initialised');
             // await page.waitForTimeout(espera);
 
-            await autoScroll(page);
+            await autoScroll(page, espera);
             response2 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.wookmark-initialised a');
                 const links = [];
@@ -109,9 +109,10 @@ const service = {
 
 }
 
-const autoScroll = async (page) => {
+const autoScroll = async (page, espera) => {
     await page.evaluate(async () => {
         await new Promise((resolve) => {
+            var timer = 0;
             var totalHeight = 0;
             var distance = 100;
             var timer = setInterval(() => {
@@ -119,10 +120,12 @@ const autoScroll = async (page) => {
                 window.scrollBy(0, distance);
                 totalHeight += distance;
 
-                if (totalHeight >= scrollHeight - window.innerHeight) {
+                if ((totalHeight >= scrollHeight - window.innerHeight) || espera === timer) {
                     clearInterval(timer);
                     resolve();
                 }
+                timer = timer + 100;
+
             }, 100);
         });
     });
