@@ -1,15 +1,11 @@
 const puppeteer = require('puppeteer');
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
 const { config } = require('../helpers/config');
 
 const service = {
 
-    hello() {
-        return "Hola domun"
-    },
-
-    async search(texto, mas, espera) {
-        const guid = uuidv4();
+    async search(texto, mas) {
+        // const guid = uuidv4();
 
         console.log("buscando...", mas);
 
@@ -28,15 +24,13 @@ const service = {
             await page.type('.header__search-form__flex-wrap input', texto)
             await page.click('.header__search-form__flex-wrap button');
             await page.waitForSelector('.photo-grid');
-            // await page.waitForTimeout(espera);
-
-            await autoScroll(page, espera);
+            await autoScroll(page);
             response1 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.photo-grid a');
                 const links = [];
                 for (let element of elements) {
                     const img = element.querySelector('img');
-                    links.push(img.src);
+                    links.push({ link: '', img: img.src });
                 }
                 return links;
             });
@@ -50,9 +44,7 @@ const service = {
                 await page.click('.search button');
             }
             await page.waitForSelector('.wookmark-initialised');
-            // await page.waitForTimeout(espera);
-
-            await autoScroll(page, espera);
+            await autoScroll(page);
             response2 = await page.evaluate(() => {
                 const elements = document.querySelectorAll('.wookmark-initialised a');
                 const links = [];
@@ -71,8 +63,7 @@ const service = {
 
     },
 
-
-    async detail(url, espera) {
+    async detail(url) {
 
         console.log("buscando...");
 
@@ -87,9 +78,7 @@ const service = {
         let response = [];
         await page.goto(url, [1000, { waitUntil: "domcontentloaded" }]);
         await page.waitForSelector('.wookmark-initialised');
-        // await page.waitForTimeout(espera);
-
-        await autoScroll(page, espera);
+        await autoScroll(page);
         response = await page.evaluate(() => {
             const elements = document.querySelectorAll('.wookmark-initialised a');
             const links = [];
@@ -102,17 +91,14 @@ const service = {
         await brower.close();
         console.log("Respondido");
         return response;
-
     }
-
-
 
 }
 
-const autoScroll = async (page, espera) => {
+const autoScroll = async (page) => {
     await page.evaluate(async () => {
         await new Promise((resolve) => {
-            var timer = 0;
+            var time = 0;
             var totalHeight = 0;
             var distance = 100;
             var timer = setInterval(() => {
@@ -120,11 +106,11 @@ const autoScroll = async (page, espera) => {
                 window.scrollBy(0, distance);
                 totalHeight += distance;
 
-                if ((totalHeight >= scrollHeight - window.innerHeight) || espera === timer) {
+                if ((totalHeight >= scrollHeight - window.innerHeight) || time == 10000) {
                     clearInterval(timer);
                     resolve();
                 }
-                timer = timer + 100;
+                time = time + 100;
 
             }, 100);
         });
