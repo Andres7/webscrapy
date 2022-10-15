@@ -24,12 +24,12 @@ const autoScroll = async (page) => {
 
 const sendResponse = (status, response, end, socket) => {
     try {
-        if (response.length > 0) {
+        if (response != null) {
             for (let row of response) {
                 socket.emit('response', { status, data: { data: row, end } });
             }
         } else {
-            socket.emit('response', { status, data: { data: null, end } });
+            socket.emit('response', { status, data: { data: response, end } });
         }
     } catch (ex) {
         console.error(ex);
@@ -51,16 +51,14 @@ const service = {
                 await page.click('.header__search-form__flex-wrap button');
                 await page.waitForSelector('.photo-grid');
                 await autoScroll(page);
-                const response1 = await page.evaluate(() => {
-                    const elements = document.querySelectorAll('.photo-grid a');
-                    let data = [];
-                    for (let element of elements) {
+                const resultsSelector = '.photo-grid a';
+                const response = await page.evaluate(resultsSelector => {
+                    return [...document.querySelectorAll(resultsSelector)].map(element => {
                         const img = element.querySelector('img');
-                        data.push({ link: '', img: img.src });
-                    }
-                    return data;
-                });
-                await sendResponse(true, response1, false, socket);
+                        return { link: '', img: img.src };
+                    });
+                }, resultsSelector);
+                await sendResponse(true, response, false, socket);
             }
 
             if (masContent) {
@@ -71,24 +69,22 @@ const service = {
                 }
                 await page.waitForSelector('.wookmark-initialised');
                 await autoScroll(page);
-                let respense2 = await page.evaluate(() => {
-                    const elements = document.querySelectorAll('.wookmark-initialised a');
-                    let data = [];
-                    for (let element of elements) {
+                const resultsSelector = '.wookmark-initialised a';
+                const response = await page.evaluate(resultsSelector => {
+                    return [...document.querySelectorAll(resultsSelector)].map(element => {
                         const img = element.querySelector('img');
-                        data.push({ link: element.href, img: img.src });
-                    }
-                    return data;
-                });
-                await sendResponse(true, respense2, false, socket);
+                        return { link: element.href, img: img.src };
+                    });
+                }, resultsSelector);
+                await sendResponse(true, response, false, socket);
             }
 
-            await sendResponse(true, [], true, socket);
+            await sendResponse(true, null, true, socket);
 
             await brower.close();
         } catch (error) {
             console.log(error);
-            await sendResponse(true, [], true, socket);
+            await sendResponse(true, null, true, socket);
         }
     },
 
@@ -99,18 +95,15 @@ const service = {
         await page.goto(texto, [1000, { waitUntil: "domcontentloaded" }]);
         await page.waitForSelector('.wookmark-initialised');
         await autoScroll(page);
-        const response = await page.evaluate(() => {
-            const elements = document.querySelectorAll('.wookmark-initialised a');
-            let data = [];
-            for (let element of elements) {
+        const resultsSelector = '.wookmark-initialised a';
+        const response = await page.evaluate(resultsSelector => {
+            return [...document.querySelectorAll(resultsSelector)].map(element => {
                 const img = element.querySelector('img');
-                data.push({ link: element.href, img: img.src });
-            }
-            return data;
-        });
-        
+                return { link: element.href, img: img.src };
+            });
+        }, resultsSelector);
         await sendResponse(true, response, false, socket);
-        await sendResponse(true, [], true, socket);
+        await sendResponse(true, null, true, socket);
         await brower.close();
     }
 

@@ -4,10 +4,10 @@ const srv = require('../services/scrapy.service');
 
 io.on('connection', (socket) => {
 
+    socket.identi = uuidv4();
 
     //IDENTIFICAR USUARIO
     socket.on('startet', async (data, callback) => {
-        socket.identi = uuidv4();
         console.log("Usuario conectado", socket.identi);
         callback({ guid: socket.identi })
     });
@@ -17,14 +17,12 @@ io.on('connection', (socket) => {
         console.log("buscando...", data);
         await srv.search(data, socket);
         console.log("Respondido");
-        // socket.emit('response', { status: true, data: { data: null, end: true } });
     });
 
     socket.on('detail', async (data) => {
         console.log("buscando...");
         await srv.detail(data, socket);
         console.log("Respondido");
-        // socket.emit('response', { status: true, data: { data: null, end: true } });
 
     });
 
