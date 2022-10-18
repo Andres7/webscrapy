@@ -24,13 +24,7 @@ const autoScroll = async (page) => {
 
 const sendResponse = (status, response, end, socket) => {
     try {
-        if (response != null) {
-            for (let row of response) {
-                socket.emit('response', { status, data: { data: row, end } });
-            }
-        } else {
-            socket.emit('response', { status, data: { data: response, end } });
-        }
+        socket.emit('response', { status, data: { data: response, end } });
     } catch (ex) {
         console.error(ex);
     }
@@ -67,16 +61,7 @@ const service = {
                     await page.type('.search input', texto)
                     await page.click('.search button');
                 }
-                await page.waitForSelector('.wookmark-initialised');
-                await autoScroll(page);
-                const resultsSelector = '.wookmark-initialised a';
-                const response = await page.evaluate(resultsSelector => {
-                    return [...document.querySelectorAll(resultsSelector)].map(element => {
-                        const img = element.querySelector('img');
-                        return { link: element.href, img: img.src };
-                    });
-                }, resultsSelector);
-                await sendResponse(true, response, false, socket);
+                await Extractor(page, socket);
             }
 
             await sendResponse(true, null, true, socket);
@@ -89,24 +74,61 @@ const service = {
     },
 
     async detail({ texto }, socket) {
-        const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-        const page = await brower.newPage();
-        await page.setViewport({ width: 1920, height: 1080 });
-        await page.goto(texto, [1000, { waitUntil: "domcontentloaded" }]);
-        await page.waitForSelector('.wookmark-initialised');
-        await autoScroll(page);
-        const resultsSelector = '.wookmark-initialised a';
+        try {
+            const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const page = await brower.newPage();
+            await page.setViewport({ width: 1920, height: 1080 });
+            await page.goto(texto, [1000, { waitUntil: "domcontentloaded" }]);
+            await page.waitForSelector('.wookmark-initialised');
+
+            await Extractor(page, socket);
+
+            await sendResponse(true, null, true, socket);
+            await brower.close();
+        } catch (error) {
+            console.log(error);
+            await sendResponse(true, null, true, socket);
+        }
+    }
+
+}
+
+
+const Scroll = async (page) => {
+    return await page.evaluate(async () => {
+        return await new Promise((resolve) => {
+            var scrollHeight = document.body.scrollHeight;
+            setTimeout(() => {
+                window.scrollBy(0, 100);
+                resolve({ scroll: scrollHeight, height: window.innerHeight });
+            }, 100);
+        });
+    });
+}
+
+const Extractor = async (page, socket) => {
+    await page.waitForSelector('.wookmark-initialised');
+    const resultsSelector = '.wookmark-initialised a';
+    var totalHeight = 0;
+    var ending = false;
+    let Itemsrespaldo = [];
+    while (ending == false) {
+        let res = await Scroll(page, totalHeight);
+        totalHeight += 100;
         const response = await page.evaluate(resultsSelector => {
             return [...document.querySelectorAll(resultsSelector)].map(element => {
                 const img = element.querySelector('img');
                 return { link: element.href, img: img.src };
             });
         }, resultsSelector);
-        await sendResponse(true, response, false, socket);
-        await sendResponse(true, null, true, socket);
-        await brower.close();
+        for (let row of response) {
+            if (!Itemsrespaldo.includes(row.img)) {
+                Itemsrespaldo.push(row.img);
+                await sendResponse(true, row, false, socket);
+            }
+        }
+        ending = totalHeight >= res.scroll ? true : false;
     }
-
 }
 
 module.exports = service;
