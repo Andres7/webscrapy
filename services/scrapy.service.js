@@ -35,7 +35,7 @@ const service = {
     async search({ texto, masContent }, socket) {
         try {
 
-            const brower = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
             const page = await brower.newPage();
             // page.on('request', request => {
             //     if (request.resourceType() === 'image') {
@@ -82,7 +82,7 @@ const service = {
 
     async detail({ texto }, socket) {
         try {
-            const brower = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
             const page = await brower.newPage();
             // page.on('request', request => {
             //     if (request.resourceType() === 'image') {
