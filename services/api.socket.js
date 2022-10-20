@@ -14,7 +14,7 @@ io.on('connection', (socket) => {
 
     // RECIBIR MENSAJE
     socket.on('search', async (data) => {
-        console.log("buscando...", data);
+        console.log("buscando...");
         await srv.search(data, socket);
         console.log("Respondido");
     });
