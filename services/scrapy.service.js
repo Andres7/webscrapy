@@ -35,8 +35,15 @@ const service = {
     async search({ texto, masContent }, socket) {
         try {
 
-            const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const brower = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
             const page = await brower.newPage();
+            page.on('request', request => {
+                if (request.resourceType() === 'image') {
+                    request.abort();
+                } else {
+                    request.continue();
+                }
+            });
             await page.setViewport({ width: 1920, height: 1080 });
 
             if (!masContent) {
@@ -75,8 +82,15 @@ const service = {
 
     async detail({ texto }, socket) {
         try {
-            const brower = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const brower = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
             const page = await brower.newPage();
+            page.on('request', request => {
+                if (request.resourceType() === 'image') {
+                    request.abort();
+                } else {
+                    request.continue();
+                }
+            });
             await page.setViewport({ width: 1920, height: 1080 });
             await page.goto(texto, [1000, { waitUntil: "domcontentloaded" }]);
             await page.waitForSelector('.wookmark-initialised');
